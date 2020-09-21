@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Numbers in Spanish</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        #answer {
+            width: 80%;
+        }
+        #submit {
+            width: 30px;
+        }
+        body {
+            text-align: center;
+            font-size: 120%;
+        }
+    </style>
+</head>
+<body>
+<form id="task">
+    <input type="number" min="0" id="from" placeholder="FROM">
+    <input type="number" min="0" id="to" placeholder="TO">
+    <input type="number" min="1" max="100" id="stack" placeholder="STACK SIZE">
+    <select id="type">
+        <option id="cardinal" value="cardinal">Cardinal</option>
+        <option id="ordinal" value="ordinal">Ordinal</option>
+    </select>
+    <h1 id="question"></h1>
+    <input type="input" placeholder="Answer" id="answer">
+    <input type="submit" value="OK" id="submit">
+    <h2 id="eval"></h2>
+</form>
+<script>
+var stack = [];
+function nextRandNumber() {
+    /*
+        Generates random number that are unique (not in the stack). Stack defines
+        a queue of defined size of number that should not be repeated as a next
+        number.
+    */
+    // Handle ranges
+    var r_from = 0;
+    if($("#from").val() != ""){
+        r_from = Math.floor($("#from").val());
+    }
+    if ($("#type").val() == "ordinal" && r_from == 0) {
+        r_from = 1;
+    }
+    var r_to = 1000;
+    if($("#to").val() != ""){
+        r_to = Math.floor($("#to").val()) + 1;
+    }
+    if (r_from > r_to) {
+        alert("Invalid ranges!");
+    }
+    // Handle stack
+    stack.push(Math.floor($("#question").html()));
+    stack_size = 3;
+    if($("#stack").val() != ""){
+        stack_size = Math.floor($("#stack").val());
+        // Handle stack length change
+        if (stack.length > stack_size + 1) {
+            // reset stack
+            stack = []
+        }
+    }
+    if (stack.length > stack_size) {
+        stack.splice(0, 1); // Remove the first element
+    }
+    vl = Math.floor((Math.random() * (r_to - r_from)) + r_from);
+    for (i = 0; i < 1000; i++) {
+        if (stack.includes(vl)) {
+            vl = Math.floor((Math.random() * (r_to - r_from)) + r_from);
+        }
+        else {
+            break;
+        }
+    }
+    return vl;
+}
+
+function parseCardinal(input_nr) {
+    /*
+    Return the name of the cardinal number in spanish (like one, two, ...).
+    */
+    if (input_nr < 0) {
+        alert("Not supported");
+    }
+    // Parse from 0 to 29 (included)
+    list_0_30 = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho",
+    "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete",
+    "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro",
+    "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"];
+    if (input_nr < 30 && input_nr >= 0) {
+        return list_0_30[input_nr];
+    }
+    // Parse from 30 to 99 (included)
+    list_30_100 = [0, 1, 2, "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+    if (input_nr >= 30 && input_nr < 100) {
+        base_str = list_30_100[Math.floor(input_nr / 10) % 10];
+        if (input_nr % 10 > 0) {
+            return base_str + " y " + parseCardinal(input_nr % 10);
+        } else {
+            return base_str;
+        }
+    }
+    // Parse from 100 to 999 (included)
+    // parse exactly 100 (separately because different behaviour)
+    if (input_nr == 100) {
+        return "cien";
+    }
+    // parse above 100
+    list_100_1000 = ["ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos",  "seiscientos",  "setecientos",  "ochocientos",  "novecientos"];
+    if (input_nr > 100 && input_nr < 1000) {
+        base_str = list_100_1000[Math.floor(input_nr / 100) % 10 - 1];
+        if (input_nr % 100 > 0) {
+            return base_str + " " + parseCardinal(input_nr % 100);
+        } else {
+            return base_str;
+        }
+    }
+    // Parse from 1000 to 999999 (included)
+    // parse 1000 - 2000 (separately because different behaviour)
+    if (input_nr >= 1000 && input_nr < 2000) {
+        if (input_nr == 1000) {
+            return "mil";
+        }
+        else {
+            return "mil " + parseCardinal(input_nr % 1000);
+        }
+    }
+    // parse above 2000
+    if (input_nr >= 2000 && input_nr < 1000000) {
+        mil_int = Math.floor(input_nr / 1000);
+        if (input_nr % 1000 == 0) {
+            return parseCardinal(mil_int) + " mil";
+        } else {
+            sub_mil = Math.floor(input_nr) % 1000;
+            return parseCardinal(mil_int) + " mil " + parseCardinal(sub_mil);
+        }
+    }
+    // Parse millions
+    // parse 1 000 000 to 1 999 999
+    if (input_nr >= 1000000 && input_nr < 2000000) {
+        if (input_nr == 1000000) {
+            return "un millón";
+        }
+        else {
+            return "un millón " + parseCardinal(input_nr % 1000000);
+        }
+    }
+    // above 1 000 000
+    if (input_nr >= 2000000 && input_nr < 1000000000) {
+        million_int = Math.floor(input_nr / 1000000);
+        if (input_nr % 1000000 == 0) {
+            return parseCardinal(million_int) + " millones";
+        }
+        else {
+            return parseCardinal(million_int) + " millones " + parseCardinal(input_nr % 1000000);
+        }
+    }
+    return input_nr;
+};
+
+function parseOrdinal(input_nr) {
+    /*
+    Return the name of the ordinal number in spanish (like first, second, ...).
+    */
+    if (input_nr < 0) {
+        alert("Not supported");
+    }
+    if (input_nr == 0) {
+        return "";
+    }
+    // Parse from 0 to 19 (included)
+    list_0_20 = [0, "primero", "segundo", "tercero", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo", "undécimo", "duodécimo", "decimotercero", "decimocuarto", "decimoquinto", "decimosexto", "decimoséptimo", "decimoctavo", "decimonoveno"];
+
+    if (input_nr < 20 && input_nr > 0) {
+        return list_0_20[input_nr];
+    }
+    // Parse from 30 to 99 (included)
+    list_20_100 = [0, 1, "vigésimo", "trigésimo", "cuadragésimo", "quincuagésimo", "sexagésimo", "septuagésimo", "octogésimo", "nonagésimo"];
+    if (input_nr >= 20 && input_nr < 100) {
+        base_str = list_20_100[Math.floor(input_nr / 10) % 10];
+        if (input_nr % 10 > 0) {
+            return base_str + " " + parseOrdinal(input_nr % 10);
+        } else {
+            return base_str;
+        }
+    }
+    // Parse from 100 to 999 (included)
+    list_100_1000 = ["centésimo", "ducentésimo", "tricentésimo", "cuadringentésimo", "quingentésimo", "sexcentésimo",  "septingentésimo",  "octingésimo",  "noningentésimo"];
+    if (input_nr >= 100 && input_nr < 1000) {
+        base_str = list_100_1000[Math.floor(input_nr / 100) % 10 - 1];
+        if (input_nr % 10 > 0) {
+            return base_str + " " + parseOrdinal(input_nr % 100);
+        } else {
+            return base_str;
+        }
+    }
+    // Parse from 1000 to 999999 (included)
+    if (input_nr >= 1000 && input_nr < 1000000) {
+        mil_int = Math.floor(input_nr / 1000);
+        if (input_nr % 1000 == 0) {
+            return parseOrdinal(mil_int) + "milésimo";
+        } else {
+            sub_mil = Math.floor(input_nr) % 1000;
+            return parseOrdinal(mil_int) + "milésimo " + parseOrdinal(sub_mil);
+        }
+    }
+    // Parse millions
+    if (input_nr >= 1000000 && input_nr < 1000000000) {
+        million_int = Math.floor(input_nr / 1000000);
+        if (input_nr % 1000000 == 0) {
+            return parseOrdinal(million_int) + "millonésimo";
+        }
+        else {
+            return parseOrdinal(million_int) + "millonésimo " + parseOrdinal(input_nr % 1000000);
+        }
+    }
+    return input_nr;
+};
+
+$( "#task" ).submit(function( event ) {
+    parsed_nr_crd = parseCardinal($("#question").html());
+    parsed_nr_ord = parseOrdinal($("#question").html());
+    input_user = $("#answer").val();
+
+    parsed_nr = parsed_nr_crd;
+    if ($("#type").val() == "ordinal") {
+        parsed_nr = parsed_nr_ord;
+    }
+
+    if (parsed_nr == input_user) {
+        $("#question").html(nextRandNumber());
+        $("#eval").html("");
+        $("#answer").val("");
+    }
+    else {
+        if (input_user == "") {
+            $("#question").html(nextRandNumber());
+            $("#answer").val("");
+            $("#eval").html("");
+        }
+        else {
+            $("#eval").html("Wrong answer!");
+        }
+    }
+    event.preventDefault();
+});
+$( document ).ready(function() {
+    $("#question").html( nextRandNumber() );
+});
+</script>
+</body>
+</html>
