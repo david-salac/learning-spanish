@@ -1,0 +1,106 @@
+[
+  {
+    "verbo": "DemoRegular",
+    "irregulares": false
+  },
+  {
+    "verbo": "DemoIrregular",
+    "irregulares": true,
+    "conjugacion": {
+      "gerundio": "gerundio",
+      "participio": "participio",
+      "indicativo": {
+        "presente": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "preterito-indefinido": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "preterito-imperfecto": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "futuro": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        }
+      },
+      "subjuntivo": {
+        "presente": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "futuro": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "preterito-imperfecto-1": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "preterito-imperfecto-2": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        }
+      },
+      "imperativo": {
+        "afirmativo": {
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        },
+        "negativo": {
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+        }
+      },
+      "condicional": {
+          "1s": "FirstPersonSingular",
+          "2s": "SecondPersonSingular",
+          "3s": "ThirdPersonSingular",
+          "1p": "FirstPersonPlural",
+          "2p": "SecondPersonPlural",
+          "3p": "ThirdPersonPlural"
+      }
+    }
+  }
+]

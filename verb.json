@@ -1,0 +1,95 @@
+[
+  {
+    "verbo": "hablar",
+    "irregulares": false
+  },
+  {
+    "verbo": "comer",
+    "irregulares": false
+  },
+  {
+    "verbo": "vivir",
+    "irregulares": false
+  },
+  {
+    "verbo": "ir",
+    "irregulares": true,
+    "conjugacion": {
+      "indicativo": {
+        "presente": {
+          "1s": "voy",
+          "2s": "vas",
+          "3s": "va",
+          "1p": "vamos",
+          "2p": "vais",
+          "3p": "van"
+        },
+        "preterito-indefinido": {
+          "1s": "fui",
+          "2s": "fuiste",
+          "3s": "fue",
+          "1p": "fuimos",
+          "2p": "fuisteis",
+          "3p": "fueron"
+        },
+        "preterito-imperfecto": {
+          "1s": "iba",
+          "2s": "ibas",
+          "3s": "iba",
+          "1p": "ibamos",
+          "2p": "ibais",
+          "3p": "iban"
+        }
+      },
+      "subjuntivo": {
+        "presente": {
+          "1s": "vaya",
+          "2s": "vayas",
+          "3s": "vaya",
+          "1p": "vayamos",
+          "2p": "vayáis",
+          "3p": "vayan"
+        },
+        "futuro": {
+          "1s": "fuere",
+          "2s": "fueres",
+          "3s": "fuere",
+          "1p": "fuéremos",
+          "2p": "fuereis",
+          "3p": "fueren"
+        },
+        "preterito-imperfecto-1": {
+          "1s": "fuera",
+          "2s": "fueras",
+          "3s": "fuera",
+          "1p": "fuéramos",
+          "2p": "fuerais",
+          "3p": "fueran"
+        },
+        "preterito-imperfecto-2": {
+          "1s": "fuese",
+          "2s": "fueses",
+          "3s": "fuese",
+          "1p": "fuésemos",
+          "2p": "fueseis",
+          "3p": "fuesen"
+        }
+      },
+      "imperativo": {
+        "afirmativo": {
+          "2s": "ve",
+          "3s": "vaya",
+          "1p": "vayamos, vamos",
+          "3p": "vayan"
+        },
+        "negativo": {
+          "2s": "vayas",
+          "3s": "vaya",
+          "1p": "vayamos",
+          "2p": "vayáis",
+          "3p": "vayan"
+        }
+      }
+    }
+  }
+]

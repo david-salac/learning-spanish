@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verbs conjugation in Spanish</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        label {
+            margin-left: 20px;
+        }
+        .clear {
+            clear: both;
+            width: 100%;
+            margin-top: 20px;
+        }
+        h3 {
+            margin-bottom: 3px;
+        }
+        #canvas #question {
+            font-weight: bold;
+            font-size: 150%;
+        }
+        #canvas #answer {
+            width: 80%;
+        }
+        body {
+            width: 90%;
+            max-width: 1024px;
+            margin: auto;
+        }
+        #verbum {
+            font-weight: bold;
+            font-size: 200%;
+        }
+        #evaluation {
+            text-weight: bold;
+            font-weight: bold;
+            font-size: 120%;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="canvas">
+    <h1>Task:</h1>
+    <p id="verbum"></p>
+    <p id="question"></p>
+    <form id="user_input">
+        <input type="text" id="answer">
+        <input type="submit" value="OK">
+    </form>
+    <p id="evaluation"></p>
+</div>
+
+
+<h1>Configuration</h1>
+<h3>Gerundio and participio</h3>
+<label for="include_gerundio">Gerundio: </label>
+<input type="checkbox" id="include_gerundio" class="config" checked="checked">
+
+<label for="include_participio">Participio: </label>
+<input type="checkbox" id="include_participio" class="config" checked="checked">
+
+<div class="clear"></div>
+<h3>Modo indicativo</h3>
+<label for="include_indicativo_presente">Presente: </label>
+<input type="checkbox" id="include_indicativo_presente" class="config" checked="checked">
+
+<label for="include_indicativo_imperfecto">Pretérito imperfecto: </label>
+<input type="checkbox" id="include_indicativo_imperfecto" class="config" checked="checked">
+
+<label for="include_indicativo_indefinido">Pretérito indefinido: </label>
+<input type="checkbox" id="include_indicativo_indefinido" class="config" checked="checked">
+
+<label for="include_indicativo_futuro">Futuro: </label>
+<input type="checkbox" id="include_indicativo_futuro" class="config" checked="checked">
+
+<div class="clear"></div>
+<h3>Modo subjuntivo</h3>
+<label for="include_subjuntivo_presente">Presente: </label>
+<input type="checkbox" id="include_subjuntivo_presente" class="config" checked="checked">
+
+<label for="include_subjuntivo_preterito_imperfecto_1">Pretérito imperfecto 1: </label>
+<input type="checkbox" id="include_subjuntivo_preterito_imperfecto_1" class="config" checked="checked">
+
+<label for="include_subjuntivo_preterito_imperfecto_2">Pretérito imperfecto 2: </label>
+<input type="checkbox" id="include_subjuntivo_preterito_imperfecto_2" class="config" checked="checked">
+
+<label for="include_subjuntivo_futuro">Futuro: </label>
+<input type="checkbox" id="include_subjuntivo_futuro" class="config" checked="checked">
+
+<div class="clear"></div>
+<h3>Modo imperativo</h3>
+<label for="include_imperativo_afirmativo">Afirmativo: </label>
+<input type="checkbox" id="include_imperativo_afirmativo" class="config" checked="checked">
+
+<label for="include_imperativo_negativo">Negativo: </label>
+<input type="checkbox" id="include_imperativo_negativo" class="config" checked="checked">
+
+<div class="clear"></div>
+<h3>Modo condicional</h3>
+<label for="include_condicional">Condicional: </label>
+<input type="checkbox" id="include_condicional" class="config" checked="checked">
+
+<div class="clear"></div>
+<h2 style="margin-bottom: 3px">Advanced setting</h2>
+<label for="keep-verb">Keep verb (test all the options of the verb): </label>
+<input type="checkbox" id="keep-verb" class="config">
+<h3>Regular / irregular</h3>
+<label for="regular">Regular: </label>
+<input type="checkbox" id="regular" class="config" checked="checked">
+<label for="irregular">Irregular: </label>
+<input type="checkbox" id="irregular" class="config" checked="checked">
+
+<p id="text"></p>
+
+<p id="debug_l"></p>
+
+<script>
+class Verb {
+  constructor(verb) {
+    this.verb = verb;
+    this.suffix = verb.substring(verb.length - 2);
+    this.root = verb.substring(0, verb.length - 2);
+    this.pattern = 0;
+    if (this.suffix == "ar") {
+        this.pattern = 0;
+    } else if (this.suffix == "er") {
+        this.pattern = 1;
+    } else if (this.suffix == "ir") {
+        this.pattern = 2;
+    }
+    // ===================== GERUNDIO / PARTICIPIO =====================
+    // a) gerundio
+    var gerundio_ar = ["ando", "ando", "ando", "ando", "ando", "ando"];
+    var gerundio_er = ["iendo", "iendo", "iendo", "iendo", "iendo", "iendo"];
+    var gerundio_ir = gerundio_er;
+    var gerundio_set = [gerundio_ar, gerundio_er, gerundio_ir];
+    this.gerundio_pattern = gerundio_set[this.pattern];
+
+    // b) participio
+    var participio_ar = ["ado", "ado", "ado", "ado", "ado", "ado"];
+    var participio_er = ["ido", "ido", "ido", "ido", "ido", "ido"];
+    var participio_ir = participio_er;
+    var participio_set = [participio_ar, participio_er, participio_ir];
+    this.participio_pattern = participio_set[this.pattern];
+
+    // ===================== REGULAR PATTERNS =====================
+    // ~~~~~~~ INDICATIVO ~~~~~~~
+    // a) presente
+    var indicativo_presente_ar = ["o", "as", "a", "amos", "áis", "an"];
+    var indicativo_presente_er = ["o", "es", "e", "emos", "éis", "en"];
+    var indicativo_presente_ir = ["o", "es", "e", "imos", "ís", "en"];
+    var indicativo_presente_set = [indicativo_presente_ar, indicativo_presente_er,
+        indicativo_presente_ir];
+    this.indicativo_presente_pattern = indicativo_presente_set[this.pattern];
+
+    // b) pretérito indefinido
+    var indicativo_indefinido_ar = ["é", "aste", "ó", "amos", "asteis", "aron"];
+    var indicativo_indefinido_er = ["í", "iste", "ió", "imos", "isteis", "ieron"];
+    var indicativo_indefinido_ir = indicativo_indefinido_er;
+    var indicativo_indefinido_set = [indicativo_indefinido_ar,
+        indicativo_indefinido_er, indicativo_indefinido_ir];
+    this.indicativo_indefinido_pattern = indicativo_indefinido_set[this.pattern];
+
+    // c) pretérito imperfecto
+    var indicativo_imperfecto_ar = ["aba", "abas", "aba", "ábamos", "abais", "aban"];
+    var indicativo_imperfecto_er = ["ía", "ías", "ía", "íamos", "íais", "ían"];
+    var indicativo_imperfecto_ir = indicativo_indefinido_er;
+    var indicativo_imperfecto_set = [indicativo_imperfecto_ar,
+        indicativo_imperfecto_er, indicativo_imperfecto_ir];
+    this.indicativo_imperfecto_pattern = indicativo_imperfecto_set[this.pattern];
+
+    // d) futuro
+    var indicativo_futuro_ar = ["é", "ás", "á", "emos", "éis", "án"];
+    var indicativo_futuro_er = indicativo_futuro_ar
+    var indicativo_futuro_ir = indicativo_indefinido_er;
+    var indicativo_futuro_set = [indicativo_futuro_ar,
+        indicativo_futuro_er, indicativo_futuro_ir];
+    this.indicativo_futuro_pattern = indicativo_futuro_set[this.pattern];
+
+    // ~~~~~~~ SUBJUNTIVO ~~~~~~~
+    // a) presente
+    var subjuntivo_presente_ar = ["e", "es", "e", "emos", "éis", "en"];
+    var subjuntivo_presente_er = ["a", "as", "a", "amos", "áis", "an"];
+    var subjuntivo_presente_ir = subjuntivo_presente_er;
+    var subjuntivo_presente_set = [subjuntivo_presente_ar, subjuntivo_presente_er,
+        subjuntivo_presente_ir];
+    this.subjuntivo_presente_pattern = subjuntivo_presente_set[this.pattern];
+    // b) pretérito imperfecto 1
+    var subjuntivo_preterito_imperfecto_1_ar = ["ara", "aras", "ara", "áramos", "arais", "aran"];
+    var subjuntivo_preterito_imperfecto_1_er = ["iera", "ieras", "iera", "iéramos", "ierais", "ieran"];
+    var subjuntivo_preterito_imperfecto_1_ir = subjuntivo_preterito_imperfecto_1_er;
+    var subjuntivo_preterito_imperfecto_1_set = [subjuntivo_preterito_imperfecto_1_ar, subjuntivo_preterito_imperfecto_1_er,
+        subjuntivo_preterito_imperfecto_1_ir];
+    this.subjuntivo_preterito_imperfecto_1_pattern = subjuntivo_preterito_imperfecto_1_set[this.pattern];
+    // c) pretérito imperfecto 2
+    var subjuntivo_preterito_imperfecto_2_ar = ["ase", "ases", "ase", "ásemos", "aseis", "asen"];
+    var subjuntivo_preterito_imperfecto_2_er = ["iese", "ieses", "iese", "iésemos", "ieseis", "iesen"];
+    var subjuntivo_preterito_imperfecto_2_ir = subjuntivo_preterito_imperfecto_2_er;
+    var subjuntivo_preterito_imperfecto_2_set = [subjuntivo_preterito_imperfecto_2_ar, subjuntivo_preterito_imperfecto_2_er,
+        subjuntivo_preterito_imperfecto_2_ir];
+    this.subjuntivo_preterito_imperfecto_2_pattern = subjuntivo_preterito_imperfecto_2_set[this.pattern];
+    // d) futuro
+    var subjuntivo_futuro_ar = ["are", "ares", "are", "áremos", "areis", "aren"];
+    var subjuntivo_futuro_er = ["iere", "ieres", "iere", "iéremos", "iereis", "ieren"];
+    var subjuntivo_futuro_ir = subjuntivo_futuro_er;
+    var subjuntivo_futuro_set = [subjuntivo_futuro_ar, subjuntivo_futuro_er,
+        subjuntivo_futuro_ir];
+    this.subjuntivo_futuro_pattern = subjuntivo_futuro_set[this.pattern];
+    // ~~~~~~~ CONDICIONAL ~~~~~~~
+    var condicional_ar = ["ía", "ías", "ía", "íamos", "íais", "ían"];
+    var condicional_er = condicional_ar;
+    var condicional_ir = condicional_er;
+    var condicional_set = [condicional_ar, condicional_er,
+        condicional_ir];
+    this.condicional_pattern = condicional_set[this.pattern];
+    // ~~~~~~~ IMPERATIVO ~~~~~~~
+    // a) afirmativo
+    var imperativo_afirmativo_ar = ["-", "a", "e", "emos", "ad", "en"];
+    var imperativo_afirmativo_er = ["-", "e", "a", "amos", "ed", "an"];
+    var imperativo_afirmativo_ir = ["-", "e", "a", "amos", "id", "an"];
+    var imperativo_afirmativo_set = [imperativo_afirmativo_ar, imperativo_afirmativo_er,
+        imperativo_afirmativo_ir];
+    this.imperativo_afirmativo_pattern = imperativo_afirmativo_set[this.pattern];
+    // b) negativo
+    var imperativo_negativo_ar = ["-", "es", "e", "emos", "éis", "en"];
+    var imperativo_negativo_er = ["-", "as", "a", "amos", "áis", "an"];
+    var imperativo_negativo_ir = imperativo_negativo_er;
+    var imperativo_negativo_set = [imperativo_negativo_ar, imperativo_negativo_er,
+        imperativo_negativo_ir];
+    this.imperativo_negativo_pattern = imperativo_negativo_set[this.pattern];
+  }
+
+  conjugate_regular() {
+    this.infinitivo = this.verb;
+    // ===================== GERUNDIO / PARTICIPIO =====================
+    // a) gerundio
+    this.gerundio = this.root + this.gerundio_pattern[0];
+
+    // b) participio
+    this.participio = this.root + this.participio_pattern[0];
+
+    // ========= INDICATIVE =========
+    // a) presente
+    this.indicativo_presente = [];
+    for (var i = 0; i < this.indicativo_presente_pattern.length; i++) {
+      this.indicativo_presente.push(
+        this.root + this.indicativo_presente_pattern[i]
+      );
+    }
+    // b) pretérito indefinido
+    this.indicativo_indefinido = [];
+    for (var i = 0; i < this.indicativo_indefinido_pattern.length; i++) {
+      this.indicativo_indefinido.push(
+        this.root + this.indicativo_indefinido_pattern[i]
+      );
+    }
+    // c) pretérito imperfecto
+    this.indicativo_imperfecto = [];
+    for (var i = 0; i < this.indicativo_imperfecto_pattern.length; i++) {
+      this.indicativo_imperfecto.push(
+        this.root + this.indicativo_imperfecto_pattern[i]
+      );
+    }
+    // d) futuro
+    this.indicativo_futuro = [];
+    for (var i = 0; i < this.indicativo_futuro_pattern.length; i++) {
+      this.indicativo_futuro.push(
+        this.infinitivo + this.indicativo_futuro_pattern[i]
+      );
+    }
+    // ========= SUBJUNCTIVO =========
+    // a) presente
+    this.subjuntivo_presente = [];
+    for (var i = 0; i < this.subjuntivo_presente_pattern.length; i++) {
+      this.subjuntivo_presente.push(
+        this.root + this.subjuntivo_presente_pattern[i]
+      );
+    }
+    // b) pretérito imperfecto 1
+    this.subjuntivo_preterito_imperfecto_1 = [];
+    for (var i = 0; i < this.subjuntivo_preterito_imperfecto_1_pattern.length; i++) {
+      this.subjuntivo_preterito_imperfecto_1.push(
+        this.root + this.subjuntivo_preterito_imperfecto_1_pattern[i]
+      );
+    }
+    // c) pretérito imperfecto 2
+    this.subjuntivo_preterito_imperfecto_2 = [];
+    for (var i = 0; i < this.subjuntivo_preterito_imperfecto_2_pattern.length; i++) {
+      this.subjuntivo_preterito_imperfecto_2.push(
+        this.root + this.subjuntivo_preterito_imperfecto_2_pattern[i]
+      );
+    }
+    // c) futuro
+    this.subjuntivo_futuro = [];
+    for (var i = 0; i < this.subjuntivo_futuro_pattern.length; i++) {
+      this.subjuntivo_futuro.push(
+        this.root + this.subjuntivo_futuro_pattern[i]
+      );
+    }
+    // ========= CONDICIONAL =========
+    this.condicional = [];
+    for (var i = 0; i < this.condicional_pattern.length; i++) {
+      this.condicional.push(
+        this.infinitivo + this.condicional_pattern[i]
+      );
+    }
+    // ========= IMPERATIVO =========
+    // a) afirmativo
+    this.imperativo_afirmativo = ["-"];
+    for (var i = 1; i < this.imperativo_afirmativo_pattern.length; i++) {
+      this.imperativo_afirmativo.push(
+        this.root + this.imperativo_afirmativo_pattern[i]
+      );
+    }
+    // b) negativo
+    this.imperativo_negativo = ["-"];
+    for (var i = 1; i < this.imperativo_negativo_pattern.length; i++) {
+      this.imperativo_negativo.push(
+        this.root + this.imperativo_negativo_pattern[i]
+      );
+    }
+    // ------------------------------------------------------------------------
+  }
+
+  getKey(person_nr) {
+    if (person_nr == 0) {
+        return "1s";
+    }
+    else if (person_nr == 1) {
+        return "2s";
+    }
+    else if (person_nr == 2) {
+        return "3s";
+    }
+    else if (person_nr == 3) {
+        return "1p";
+    }
+    else if (person_nr == 4) {
+        return "2p";
+    }
+    else if (person_nr == 5) {
+        return "3p";
+    }
+  }
+
+  load_verb(verb_obj) {
+    // Parse the irregular verb object
+    if (verb_obj["irregulares"] == false) {
+        return;
+    }
+    // else:
+    var con_obj = verb_obj["conjugacion"];
+    // Modo indicativo:
+    if (con_obj.hasOwnProperty("indicativo")) {
+        var con_class = con_obj["indicativo"];
+
+        if (con_class.hasOwnProperty("presente")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["presente"]) {
+                    this.indicativo_presente[i] = con_class["presente"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("preterito-indefinido")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["preterito-indefinido"]) {
+                    this.indicativo_indefinido[i] = con_class["preterito-indefinido"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("preterito-imperfecto")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["preterito-imperfecto"]) {
+                    this.indicativo_imperfecto[i] = con_class["preterito-imperfecto"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("futuro")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["futuro"]) {
+                    this.indicativo_futuro[i] = con_class["futuro"][this.getKey(i)];
+                }
+            }
+        }
+    }
+    // Modo subjuntivo:
+    if (con_obj.hasOwnProperty("subjuntivo")) {
+        var con_class = con_obj["subjuntivo"];
+
+        if (con_class.hasOwnProperty("presente")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["presente"]) {
+                    this.subjuntivo_presente[i] = con_class["presente"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("futuro")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["futuro"]) {
+                    this.subjuntivo_futuro[i] = con_class["futuro"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("preterito-imperfecto-1")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["preterito-imperfecto-1"]) {
+                    this.subjuntivo_preterito_imperfecto_1[i] = con_class["preterito-imperfecto-1"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("preterito-imperfecto-2")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["preterito-imperfecto-2"]) {
+                    this.subjuntivo_preterito_imperfecto_2[i] = con_class["preterito-imperfecto-2"][this.getKey(i)];
+                }
+            }
+        }
+    }
+    // Modo imperativo:
+    if (con_obj.hasOwnProperty("imperativo")) {
+        var con_class = con_obj["imperativo"];
+
+        if (con_class.hasOwnProperty("afirmativo")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["afirmativo"]) {
+                    this.imperativo_afirmativo[i] = con_class["afirmativo"][this.getKey(i)];
+                }
+            }
+        }
+        if (con_class.hasOwnProperty("negativo")) {
+            for (var i = 0; i < 6; i++) {
+                if (this.getKey(i) in con_class["negativo"]) {
+                    this.imperativo_negativo[i] = con_class["negativo"][this.getKey(i)];
+                }
+            }
+        }
+    }
+    // Modo condicional:
+    if (con_obj.hasOwnProperty("condicional")) {
+        var con_class = con_obj["condicional"];
+        // There are no other options in this mode
+        for (var i = 0; i < 6; i++) {
+            if (this.getKey(i) in con_class) {
+                this.condicional[i] = con_class[this.getKey(i)];
+            }
+        }
+    }
+  }
+}
+
+class Option {
+    // Data class for the option
+    constructor(
+        modo_o,
+        time_o,
+        person_o,
+        answer_a
+    ) {
+        this.modo_o = modo_o;
+        this.time_o = time_o;
+        this.person_o = person_o;
+        this.answer_a = answer_a;
+    }
+
+    prepare_question () {
+        // return question as a string;
+        var ret = "Modo " + this.modo_o;
+        if (this.time_o != null) {
+            ret += ", " + this.time_o;
+        }
+        if (this.person_o != null) {
+            ret += ", " + this.person_o;
+        }
+        return ret;
+    }
+}
+
+class OptionContainer {
+    constructor(
+        verb_cls_obj,
+        include_gerundio,
+        include_participio,
+        include_indicativo_presente,
+        include_indicativo_imperfecto,
+        include_indicativo_indefinido,
+        include_indicativo_futuro,
+        include_subjuntivo_presente,
+        include_subjuntivo_preterito_imperfecto_1,
+        include_subjuntivo_preterito_imperfecto_2,
+        include_subjuntivo_futuro,
+        include_condicional,
+        include_imperativo_afirmativo,
+        include_imperativo_negativo
+    ) {
+        // verb_cls_obj (Verb): conjugated verb
+        this.verb = verb_cls_obj
+        this.option = []; // an array of options Option
+
+        // Auxiliary array
+        var person_nr = ["yo", "tú", "él, ella, usted",
+            "nosotros, nosotras", "vosotros, vosotras", "ellos, ellas, ustedes"];
+
+        // Add gerundio:
+        if (include_gerundio) {
+            this.option.push(new Option("gerundio", null, null, this.verb.gerundio));
+        }
+
+        // Add participio:
+        if (include_participio) {
+            this.option.push(new Option("participio", null, null, this.verb.participio));
+        }
+
+        // ========= Modo indicativo =========
+        // a) Presente
+        for (var i = 0; i < 6 && include_indicativo_presente; i++) {
+            this.option.push(new Option("indicativo", "presente", person_nr[i], this.verb.indicativo_presente[i]));
+        }
+        // b) Pretérito imperfecto
+        for (var i = 0; i < 6 && include_indicativo_imperfecto; i++) {
+            this.option.push(new Option("indicativo", "pretérito imperfecto", person_nr[i], this.verb.indicativo_imperfecto[i]));
+        }
+        // c) Pretérito indefinido
+        for (var i = 0; i < 6 && include_indicativo_indefinido; i++) {
+            this.option.push(new Option("indicativo", "pretérito indefinido", person_nr[i], this.verb.indicativo_indefinido[i]));
+        }
+        // d) Futuro
+        for (var i = 0; i < 6 && include_indicativo_futuro; i++) {
+            this.option.push(new Option("indicativo", "futuro", person_nr[i], this.verb.indicativo_futuro[i]));
+        }
+
+        // ========= Modo subjuntivo =========
+        // a) Presente
+        for (var i = 0; i < 6 && include_subjuntivo_presente; i++) {
+            this.option.push(new Option("subjuntivo", "presente", person_nr[i], this.verb.subjuntivo_presente[i]));
+        }
+        // b) Pretérito imperfecto 1
+        for (var i = 0; i < 6 && include_subjuntivo_preterito_imperfecto_1; i++) {
+            this.option.push(new Option("subjuntivo", "pretérito imperfecto", person_nr[i], this.verb.subjuntivo_preterito_imperfecto_1[i]));
+        }
+        // c) Pretérito imperfecto 2
+        for (var i = 0; i < 6 && include_subjuntivo_preterito_imperfecto_2; i++) {
+            this.option.push(new Option("subjuntivo", "pretérito indefinido", person_nr[i], this.verb.subjuntivo_preterito_imperfecto_2[i]));
+        }
+        // d) Futuro
+        for (var i = 0; i < 6 && include_subjuntivo_futuro; i++) {
+            this.option.push(new Option("subjuntivo", "futuro", person_nr[i], this.verb.subjuntivo_futuro[i]));
+        }
+
+        // ========= Modo condicional =========
+        for (var i = 0; i < 6 && include_condicional; i++) {
+            this.option.push(new Option("condicional", null, person_nr[i], this.verb.condicional[i]));
+        }
+
+        // ========= Modo imperativo =========
+        // a) Afirmativo
+        for (var i = 0; i < 6 && include_imperativo_afirmativo; i++) {
+            this.option.push(new Option("imperativo", "afirmativo", person_nr[i], this.verb.imperativo_afirmativo[i]));
+        }
+        // b) Negativo
+        for (var i = 0; i < 6 && include_imperativo_negativo; i++) {
+            this.option.push(new Option("imperativo", "negativo", person_nr[i], this.verb.imperativo_negativo[i]));
+        }
+    }
+
+    is_empty() {
+        return this.option.length == 0;
+    }
+
+    next_option() {
+        if (this.option.length == 0) {
+            return false;
+        }
+        var idx = Math.floor(Math.random() * this.option.length);
+        // Select option
+        var sel_opt = this.option[idx];
+        // Remove option
+        this.option.splice(idx, 1);
+        // Return option
+        return sel_opt
+    }
+    print_it() {
+        // Debug print to the object with id "debug_l"
+        for (var i = 0; i < this.option.length; i++) {
+            $("#debug_l").append("modo: " + this.option[i].modo_o +
+                                 ", time: " + this.option[i].time_o +
+                                 ", person: " + this.option[i].person_o +
+                                 ", answer: " + this.option[i].answer_a  + "<br>");
+        }
+    }
+}
+
+function writeVerb(a) {
+    // For debugging purposes only, append to the object wit id #text
+    $("#text").append( a.verb );
+    $("#text").append( "<br>" );
+    $("#text").append( "indicativo_presente: " );
+    a.indicativo_presente.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "indicativo_indefinido: " );
+    a.indicativo_indefinido.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "indicativo_imperfecto: " );
+    a.indicativo_imperfecto.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "indicativo_futuro: " );
+    a.indicativo_futuro.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "subjuntivo_presente: " );
+    a.subjuntivo_presente.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "subjuntivo_preterito_imperfecto_1: " );
+    a.subjuntivo_preterito_imperfecto_1.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "subjuntivo_preterito_imperfecto_2: " );
+    a.subjuntivo_preterito_imperfecto_2.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "subjuntivo_futuro: " );
+    a.subjuntivo_futuro.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "condicional: " );
+    a.condicional.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "imperativo_afirmativo: " );
+    a.imperativo_afirmativo.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "imperativo_negativo: " );
+    a.imperativo_negativo.forEach(function (e) { $("#text").append( e + " " ); });
+    $("#text").append( "<br>" );
+    $("#text").append( "<br>" );
+}
+
+function conjugateRegular() {
+    $.getJSON("http://127.0.0.1:5000/", function(json) {
+        for (var i = 0; i < json.length; i++) {
+            var verb_obj = json[i];
+            var infinitivo = verb_obj["verbo"];
+            var conjugated = new Verb(infinitivo);
+            conjugated.conjugate_regular();
+            conjugated.load_verb(verb_obj);
+            writeVerb(conjugated);
+            x = new OptionContainer(
+                conjugated,
+                $('#include_gerundio').prop('checked'),
+                $('#include_participio').prop('checked'),
+                $('#include_indicativo_presente').prop('checked'),
+                $('#include_indicativo_imperfecto').prop('checked'),
+                $('#include_indicativo_indefinido').prop('checked'),
+                $('#include_indicativo_futuro').prop('checked'),
+                $('#include_subjuntivo_presente').prop('checked'),
+                $('#include_subjuntivo_preterito_imperfecto_1').prop('checked'),
+                $('#include_subjuntivo_preterito_imperfecto_2').prop('checked'),
+                $('#include_subjuntivo_futuro').prop('checked'),
+                $('#include_condicional').prop('checked'),
+                $('#include_imperativo_afirmativo').prop('checked'),
+                $('#include_imperativo_negativo').prop('checked')
+            );
+            x.print_it();
+        }
+    });
+}
+
+class Canvas {
+    // Manages the rendering
+
+    constructor(json) {
+        this.verb = null;
+        this.options = null;
+        this.current_option = null;
+        this.stack = []; // Stack of indices
+        this.stack_size = 10;
+        this.json = json;
+        this.regular_idx = [];
+        this.irregular_idx = [];
+        for (var i = 0; i < this.json.length; i++) {
+            if (this.json[i]["irregulares"]) {
+                // Find indices of regular:
+                this.irregular_idx.push(i);
+            }
+            else {
+                // Find indices of irregular
+                this.regular_idx.push(i);
+            }
+        }
+        this.next();
+    }
+
+    print_option(in_option) {
+        $("#verbum").html(this.verb.infinitivo);
+        $("#question").html(in_option.prepare_question());
+    }
+
+    next_rand_integer(length) {
+        // Generate new index for the verb (and not in n last verbs)
+        var max_attempt = 1000;
+        var curr_attempt = 0;
+        var nr = Math.floor(Math.random() * length);
+        for (var curr_attempt = 0; curr_attempt < max_attempt; curr_attempt++) {
+            // Want to avoid repetition
+            if (nr in this.stack) {
+                continue;
+            }
+            else {
+                this.stack.push(nr);
+                if (this.stack.length > this.stack_size) {
+                    this.stack.splice(0, 1);
+                }
+            }
+            nr = Math.floor(Math.random() * length);
+        }
+        return nr;
+    }
+
+    next() {
+        var leng = this.json.length;
+        if (this.options == null || !($('#keep-verb').prop('checked'))) {
+            var rand_next_idx = this.next_rand_integer(this.json.length);
+
+            if (!$('#irregular').prop('checked') && !$('#regular').prop('checked')) {
+                alert("Error, at least one of regular/irregular must be selected.");
+            }
+            else if ($('#irregular').prop('checked') && !$('#regular').prop('checked')) {
+                // if only irregular
+                console.log(this.irregular_idx);
+                rand_next_idx = this.irregular_idx[this.next_rand_integer(this.irregular_idx.length)];
+            }
+            else if (!$('#irregular').prop('checked') && $('#regular').prop('checked')) {
+                // if only regular
+                console.log(this.regular_idx);
+                rand_next_idx = this.regular_idx[this.next_rand_integer(this.regular_idx.length)];
+            }
+            var verb_obj = this.json[rand_next_idx];
+            var infinitivo = verb_obj["verbo"];
+            this.verb = new Verb(infinitivo);
+            this.verb.conjugate_regular();
+            this.verb.load_verb(verb_obj);
+            this.options = new OptionContainer(
+                this.verb,
+                $('#include_gerundio').prop('checked'),
+                $('#include_participio').prop('checked'),
+                $('#include_indicativo_presente').prop('checked'),
+                $('#include_indicativo_imperfecto').prop('checked'),
+                $('#include_indicativo_indefinido').prop('checked'),
+                $('#include_indicativo_futuro').prop('checked'),
+                $('#include_subjuntivo_presente').prop('checked'),
+                $('#include_subjuntivo_preterito_imperfecto_1').prop('checked'),
+                $('#include_subjuntivo_preterito_imperfecto_2').prop('checked'),
+                $('#include_subjuntivo_futuro').prop('checked'),
+                $('#include_condicional').prop('checked'),
+                $('#include_imperativo_afirmativo').prop('checked'),
+                $('#include_imperativo_negativo').prop('checked')
+            );
+            // Get option
+            this.current_option = this.options.next_option();
+            this.print_option(this.current_option);
+        }
+        if ($('#keep-verb').prop('checked')) {
+            // Enumerate all possibilities of one verb
+            this.current_option = this.options.next_option();
+            this.print_option(this.current_option);
+
+            if (this.options.is_empty()) {
+                this.options = null;
+            }
+        }
+    }
+    evaluate() {
+        var usr_input = $("#answer").val();
+        if(usr_input == this.current_option.answer_a) {
+            return true;
+        }
+        else {
+            $("#evaluation").html("Wrong answer!");
+            return false;
+        }
+    }
+}
+
+$( document ).ready(function() {
+    //conjugateRegular();
+    remote_url = "http://127.0.0.1:5000/";
+    $.getJSON(remote_url, function(json) {
+        var new_cv = new Canvas(json);
+        $("#user_input").submit(function( event ) {
+            if(new_cv.evaluate()) {
+                new_cv.next();
+                $("#evaluation").html("");
+                $("#answer").val("");
+            }
+            event.preventDefault();
+        });
+        $(".config").change(function() {
+            new_cv.next();
+            $("#evaluation").html("");
+        });
+    });
+});
+</script>
+</body>
+</html>
