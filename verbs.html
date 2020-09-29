@@ -779,7 +779,7 @@ class Canvas {
 
 $( document ).ready(function() {
     //conjugateRegular();
-    remote_url = "http://127.0.0.1:5000/";
+    remote_url = "http://127.0.0.1:5000/";  // TODO: SET-UP HERE
     $.getJSON(remote_url, function(json) {
         var new_cv = new Canvas(json);
         $("#user_input").submit(function( event ) {
