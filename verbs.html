@@ -70,7 +70,7 @@
             border-radius: 10px;
         }
         #skip {
-            margin: 20px 0 10px 0;
+            margin: 20px 20px 10px 0;
         }
         #special-characters span {
             border: 1px solid #e7e7e7;
@@ -107,6 +107,7 @@
 </p>
 
 <input type="button" value="SKIP" id="skip">
+<input type="button" value="HINT" id="hint">
 
 <h1>Configuration</h1>
 <h3>Gerundio and participio</h3>
@@ -528,7 +529,6 @@ class Option {
         if (this.person_o != null) {
             ret += " <span class='q_person'>" + this.person_o + "</span>";
         }
-        console.log(this.answer_a);
         return ret;
     }
 }
@@ -861,6 +861,10 @@ $( document ).ready(function() {
         });
         $(".special-character").click(function() {
             $('#answer').val($('#answer').val() + $(this).html());
+            $("#answer").focus();
+        });
+        $("#hint").click(function() {
+            $('#answer').val(new_cv.current_option.answer_a);
             $("#answer").focus();
         });
     });
