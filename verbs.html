@@ -22,6 +22,7 @@
         }
         #canvas #answer {
             width: 80%;
+            margin-bottom: 20px;
         }
         body {
             width: 90%;
@@ -69,13 +70,23 @@
             border-radius: 10px;
         }
         #skip {
-            margin: 10px 0 10px 0;
+            margin: 20px 0 10px 0;
+        }
+        #special-characters span {
+            border: 1px solid #e7e7e7;
+            background: #f7f7f7;
+            padding: 7px 12px 7px 12px;
+            margin: 0 10px 0 10px;
+            font-weight: bold;
+            font-size: 120%;
+        }
+        #special-characters span:first-child {
+            margin-left: 0;
         }
     </style>
 </head>
 <body>
 <div id="canvas">
-    <h1>Task:</h1>
     <p id="verbum"></p>
     <p id="question"></p>
     <form id="user_input">
@@ -84,6 +95,16 @@
     </form>
     <p id="evaluation"></p>
 </div>
+
+<p id="special-characters">
+    <span class="special-character">á</span>
+    <span class="special-character">é</span>
+    <span class="special-character">í</span>
+    <span class="special-character">ó</span>
+    <span class="special-character">ú</span>
+    <span class="special-character">ü</span>
+    <span class="special-character">ñ</span>
+</p>
 
 <input type="button" value="SKIP" id="skip">
 
@@ -823,17 +844,24 @@ $( document ).ready(function() {
                 $("#answer").val("");
             }
             event.preventDefault();
+            $("#answer").focus();
         });
         $(".config").change(function() {
             new_cv = new Canvas(json);
             new_cv.next();
             $("#evaluation").html("");
             $("#answer").val("");
+            $("#answer").focus();
         });
         $("#skip").click(function() {
             new_cv.next();
             $("#evaluation").html("");
             $("#answer").val("");
+            $("#answer").focus();
+        });
+        $(".special-character").click(function() {
+            $('#answer').val($('#answer').val() + $(this).html());
+            $("#answer").focus();
         });
     });
 });
