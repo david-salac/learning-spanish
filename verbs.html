@@ -31,12 +31,45 @@
         #verbum {
             font-weight: bold;
             font-size: 200%;
+            padding: 10px 15px 10px 15px;
+            border: 1px solid #e9e9e9;
         }
         #evaluation {
             text-weight: bold;
             font-weight: bold;
             font-size: 120%;
             color: red;
+        }
+        .q_modo {
+            background: #ffc0c0;
+            padding: 10px;
+            margin-right; 20px;
+        }
+        .q_modo {
+            background: #ffc0c0;
+            padding: 10px 15px 10px 15px;
+            margin-right; 20px;
+        }
+        .q_modo {
+            background: #ffdede;
+            padding: 10px 20px 10px 20px;
+            margin-right; 20px;
+            border-radius: 10px;
+        }
+        .q_time {
+            background: #def6ff;
+            padding: 10px 20px 10px 20px;
+            margin-right; 20px;
+            border-radius: 10px;
+        }
+        .q_person {
+            background: #efffde;
+            padding: 10px 20px 10px 20px;
+            margin-right; 20px;
+            border-radius: 10px;
+        }
+        #skip {
+            margin: 10px 0 10px 0;
         }
     </style>
 </head>
@@ -52,6 +85,7 @@
     <p id="evaluation"></p>
 </div>
 
+<input type="button" value="SKIP" id="skip">
 
 <h1>Configuration</h1>
 <h3>Gerundio and participio</h3>
@@ -174,7 +208,7 @@ class Verb {
     // d) futuro
     var indicativo_futuro_ar = ["é", "ás", "á", "emos", "éis", "án"];
     var indicativo_futuro_er = indicativo_futuro_ar
-    var indicativo_futuro_ir = indicativo_indefinido_er;
+    var indicativo_futuro_ir = indicativo_futuro_ar;
     var indicativo_futuro_set = [indicativo_futuro_ar,
         indicativo_futuro_er, indicativo_futuro_ir];
     this.indicativo_futuro_pattern = indicativo_futuro_set[this.pattern];
@@ -466,12 +500,12 @@ class Option {
 
     prepare_question () {
         // return question as a string;
-        var ret = "Modo " + this.modo_o;
+        var ret = "<span class='q_modo'>Modo " + this.modo_o + "</span>";
         if (this.time_o != null) {
-            ret += ", " + this.time_o;
+            ret += " <span class='q_time'>" + this.time_o + "</span>";
         }
         if (this.person_o != null) {
-            ret += ", " + this.person_o;
+            ret += " <span class='q_person'>" + this.person_o + "</span>";
         }
         return ret;
     }
@@ -793,6 +827,12 @@ $( document ).ready(function() {
         $(".config").change(function() {
             new_cv.next();
             $("#evaluation").html("");
+            $("#answer").val("");
+        });
+        $("#skip").click(function() {
+            new_cv.next();
+            $("#evaluation").html("");
+            $("#answer").val("");
         });
     });
 });
