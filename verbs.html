@@ -507,6 +507,7 @@ class Option {
         if (this.person_o != null) {
             ret += " <span class='q_person'>" + this.person_o + "</span>";
         }
+        console.log(this.answer_a);
         return ret;
     }
 }
@@ -756,12 +757,10 @@ class Canvas {
             }
             else if ($('#irregular').prop('checked') && !$('#regular').prop('checked')) {
                 // if only irregular
-                console.log(this.irregular_idx);
                 rand_next_idx = this.irregular_idx[this.next_rand_integer(this.irregular_idx.length)];
             }
             else if (!$('#irregular').prop('checked') && $('#regular').prop('checked')) {
                 // if only regular
-                console.log(this.regular_idx);
                 rand_next_idx = this.regular_idx[this.next_rand_integer(this.regular_idx.length)];
             }
             var verb_obj = this.json[rand_next_idx];
@@ -825,6 +824,7 @@ $( document ).ready(function() {
             event.preventDefault();
         });
         $(".config").change(function() {
+            new_cv = new Canvas(json);
             new_cv.next();
             $("#evaluation").html("");
             $("#answer").val("");
