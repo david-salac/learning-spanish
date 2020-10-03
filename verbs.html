@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Verbs conjugation in Spanish</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
+
     <style>
         label {
             margin-left: 20px;
@@ -724,12 +727,12 @@ class Canvas {
         this.verb = null;
         this.options = null;
         this.current_option = null;
-        this.stack = []; // Stack of indices
-        this.stack_size = 10;
         this.json = json;
         this.regular_idx = [];
         this.irregular_idx = [];
+        this.all_idx = [];
         for (var i = 0; i < this.json.length; i++) {
+            this.all_idx.push(i);
             if (this.json[i]["irregulares"]) {
                 // Find indices of regular:
                 this.irregular_idx.push(i);
@@ -739,7 +742,6 @@ class Canvas {
                 this.regular_idx.push(i);
             }
         }
-        this.next();
     }
 
     print_option(in_option) {
@@ -747,43 +749,22 @@ class Canvas {
         $("#question").html(in_option.prepare_question());
     }
 
-    next_rand_integer(length) {
-        // Generate new index for the verb (and not in n last verbs)
-        var max_attempt = 1000;
-        var curr_attempt = 0;
-        var nr = Math.floor(Math.random() * length);
-        for (var curr_attempt = 0; curr_attempt < max_attempt; curr_attempt++) {
-            // Want to avoid repetition
-            if (nr in this.stack) {
-                continue;
-            }
-            else {
-                this.stack.push(nr);
-                if (this.stack.length > this.stack_size) {
-                    this.stack.splice(0, 1);
-                }
-            }
-            nr = Math.floor(Math.random() * length);
-        }
-        return nr;
-    }
-
     next() {
         var leng = this.json.length;
         if (this.options == null || !($('#keep-verb').prop('checked'))) {
-            var rand_next_idx = this.next_rand_integer(this.json.length);
-
+            var rand_next_idx = this.all_idx[0];
             if (!$('#irregular').prop('checked') && !$('#regular').prop('checked')) {
                 alert("Error, at least one of regular/irregular must be selected.");
             }
             else if ($('#irregular').prop('checked') && !$('#regular').prop('checked')) {
                 // if only irregular
-                rand_next_idx = this.irregular_idx[this.next_rand_integer(this.irregular_idx.length)];
+                rand_next_idx = this.irregular_idx[0];
             }
             else if (!$('#irregular').prop('checked') && $('#regular').prop('checked')) {
                 // if only regular
-                rand_next_idx = this.regular_idx[this.next_rand_integer(this.regular_idx.length)];
+                rand_next_idx = this.regular_idx[0];
             }
+
             var verb_obj = this.json[rand_next_idx];
             var infinitivo = verb_obj["verbo"];
             this.verb = new Verb(infinitivo);
@@ -808,6 +789,17 @@ class Canvas {
             // Get option
             this.current_option = this.options.next_option();
             this.print_option(this.current_option);
+
+            // Splice verb object
+            if ($('#irregular').prop('checked') && !$('#regular').prop('checked')) {
+                this.irregular_idx.splice(0, 1);
+            }
+            else if (!$('#irregular').prop('checked') && $('#regular').prop('checked')) {
+                this.regular_idx.splice(0, 1);
+            }
+            else {
+                this.all_idx.splice(0, 1);
+            }
         }
         else if ($('#keep-verb').prop('checked')) {
             // Enumerate all possibilities of one verb
@@ -817,8 +809,12 @@ class Canvas {
             if (this.options.is_empty()) {
                 this.options = null;
             }
-
         }
+        // Return false if reset is needed
+        if (this.irregular_idx.length == 0 || this.regular_idx.length == 0 || this.all_idx.length == 0) {
+            return false;
+        }
+        return true;
     }
     evaluate() {
         var usr_input = $("#answer").val();
@@ -832,14 +828,45 @@ class Canvas {
     }
 }
 
+function get_time_string() {
+    var currentdate = new Date();
+    return currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/"
+                    + currentdate.getFullYear() + " @ "
+                    + currentdate.getHours() + ":"
+                    + currentdate.getMinutes() + ":"
+                    + currentdate.getSeconds();
+}
+
+function randomSwap(a, b) {
+    a_1 = CryptoJS.MD5(get_time_string() + a["verbo"]).toString();
+    b_1 = CryptoJS.MD5(get_time_string() + b["verbo"]).toString();
+    aux_arr = [a_1, b_1];
+
+    aux_arr.sort();
+    if (aux_arr[0] == a_1) {
+        return -1;
+    }
+    if (aux_arr[0] == b_1) {
+        return 1;
+    }
+    return 0;
+}
+
 $( document ).ready(function() {
     //conjugateRegular();
     remote_url = "http://127.0.0.1:5000/";  // TODO: SET-UP HERE
     $.getJSON(remote_url, function(json) {
-        var new_cv = new Canvas(json);
+        var new_cv = new Canvas(json.sort(randomSwap));
+        if (!new_cv.next()) {
+            new_cv = new Canvas(json.sort(randomSwap));
+        }
         $("#user_input").submit(function( event ) {
             if(new_cv.evaluate()) {
                 new_cv.next();
+                if (!new_cv.next()) {
+                    new_cv = new Canvas(json.sort(randomSwap));
+                }
                 $("#evaluation").html("");
                 $("#answer").val("");
             }
@@ -847,14 +874,18 @@ $( document ).ready(function() {
             $("#answer").focus();
         });
         $(".config").change(function() {
-            new_cv = new Canvas(json);
-            new_cv.next();
+            new_cv = new Canvas(json.sort(randomSwap));
+            if (!new_cv.next()) {
+                new_cv = new Canvas(json.sort(randomSwap));
+            }
             $("#evaluation").html("");
             $("#answer").val("");
             $("#answer").focus();
         });
         $("#skip").click(function() {
-            new_cv.next();
+            if (!new_cv.next()) {
+                new_cv = new Canvas(json.sort(randomSwap));
+            }
             $("#evaluation").html("");
             $("#answer").val("");
             $("#answer").focus();
