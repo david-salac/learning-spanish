@@ -176,6 +176,18 @@
 <p id="debug_l"></p>
 
 <script>
+
+function get_time_string() {
+    // Get the current time as a string, used for random reordering
+    var currentdate = new Date();
+    return currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/"
+                    + currentdate.getFullYear() + " @ "
+                    + currentdate.getHours() + ":"
+                    + currentdate.getMinutes() + ":"
+                    + currentdate.getSeconds();
+}
+
 class Verb {
   constructor(verb) {
     this.verb = verb;
@@ -621,21 +633,39 @@ class OptionContainer {
         for (var i = 0; i < 6 && include_imperativo_negativo; i++) {
             this.option.push(new Option("imperativo", "negativo", person_nr[i], this.verb.imperativo_negativo[i]));
         }
+        // Reshufle the objects
+        this.option = this.option.sort(this.random_option_swap);
     }
 
     is_empty() {
         return this.option.length == 0;
     }
 
+    random_option_swap(a, b) {
+        // Function for the random reordering of the input verb's options
+        a_1 = CryptoJS.MD5(get_time_string() + a.answer_a).toString();
+        b_1 = CryptoJS.MD5(get_time_string() + b.answer_a).toString();
+        aux_arr = [a_1, b_1];
+
+        aux_arr.sort();
+        if (aux_arr[0] == a_1) {
+            return -1;
+        }
+        if (aux_arr[0] == b_1) {
+            return 1;
+        }
+        return 0;
+    }
+
     next_option() {
         if (this.option.length == 0) {
+            // Solve singular case when there is no option available
             return false;
         }
-        var idx = Math.floor(Math.random() * this.option.length);
         // Select option
-        var sel_opt = this.option[idx];
+        var sel_opt = this.option[0];
         // Remove option
-        this.option.splice(idx, 1);
+        this.option.splice(0, 1);
         // Return option
         return sel_opt
     }
@@ -828,17 +858,8 @@ class Canvas {
     }
 }
 
-function get_time_string() {
-    var currentdate = new Date();
-    return currentdate.getDate() + "/"
-                    + (currentdate.getMonth()+1)  + "/"
-                    + currentdate.getFullYear() + " @ "
-                    + currentdate.getHours() + ":"
-                    + currentdate.getMinutes() + ":"
-                    + currentdate.getSeconds();
-}
-
 function randomSwap(a, b) {
+    // Function for the random reordering of the input verbs
     a_1 = CryptoJS.MD5(get_time_string() + a["verbo"]).toString();
     b_1 = CryptoJS.MD5(get_time_string() + b["verbo"]).toString();
     aux_arr = [a_1, b_1];
