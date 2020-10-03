@@ -4,13 +4,120 @@
     "irregulares": false
   },
   {
+    "verbo": "necesitar",
+    "irregulares": false
+  },
+  {
+    "verbo": "usar",
+    "irregulares": false
+  },
+  {
+    "verbo": "ayudar",
+    "irregulares": false
+  },
+  {
+    "verbo": "regresar",
+    "irregulares": false
+  },
+  {
+    "verbo": "quedar",
+    "irregulares": false
+  },
+  {
+    "verbo": "esperar",
+    "irregulares": false
+  },
+  {
+    "verbo": "lavar",
+    "irregulares": false
+  },
+  {
+    "verbo": "cocinar",
+    "irregulares": false
+  },
+  {
+    "verbo": "limpiar",
+    "irregulares": false
+  },
+
+  {
     "verbo": "comer",
     "irregulares": false
   },
   {
+    "verbo": "beber",
+    "irregulares": false
+  },
+  {
+    "verbo": "aprender",
+    "irregulares": false
+  },
+  {
+    "verbo": "barrer",
+    "irregulares": false
+  },
+  {
+    "verbo": "comprender",
+    "irregulares": false
+  },
+  {
+    "verbo": "correr",
+    "irregulares": false
+  },
+  {
+    "verbo": "deber",
+    "irregulares": false
+  },
+  {
+    "verbo": "depender",
+    "irregulares": false
+  },
+  {
+    "verbo": "esconder",
+    "irregulares": false
+  },
+  {
+    "verbo": "vender",
+    "irregulares": false
+  },
+
+  {
     "verbo": "vivir",
     "irregulares": false
   },
+  {
+    "verbo": "aburrir",
+    "irregulares": false
+  },
+  {
+    "verbo": "acudir",
+    "irregulares": false
+  },
+  {
+    "verbo": "admitir",
+    "irregulares": false
+  },
+  {
+    "verbo": "aplaudir",
+    "irregulares": false
+  },
+  {
+    "verbo": "asistir",
+    "irregulares": false
+  },
+  {
+    "verbo": "decidir",
+    "irregulares": false
+  },
+  {
+    "verbo": "definir",
+    "irregulares": false
+  },
+  {
+    "verbo": "subir",
+    "irregulares": false
+  },
+
   {
     "verbo": "ir",
     "irregulares": true,
