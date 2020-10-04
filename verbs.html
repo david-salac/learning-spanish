@@ -884,7 +884,6 @@ $( document ).ready(function() {
         }
         $("#user_input").submit(function( event ) {
             if(new_cv.evaluate()) {
-                new_cv.next();
                 if (!new_cv.next()) {
                     new_cv = new Canvas(json.sort(randomSwap));
                 }
